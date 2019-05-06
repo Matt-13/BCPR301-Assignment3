@@ -1,0 +1,3 @@
+[run]
+omit =
+    C:\Users\Matthew\AppData\Roaming\Python\Python37\site-packages\*

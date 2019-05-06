@@ -1,0 +1,74 @@
+"""
+
+>>> from pythonscripts.FileView import FileView
+>>> fv = FileView()
+>>> fv.print_help() # doctest: +ELLIPSIS
+<BLANKLINE>
+<BLANKLINE>
+<BLANKLINE>
+...
+>>> fv.general_error()
+<BLANKLINE>
+==========ERROR==========
+<BLANKLINE>
+>>> fv.fc_file_found()
+<BLANKLINE>
+File Found! Reading..
+<BLANKLINE>
+>>> fv.fc_defaults("C:\\") # doctest: +ELLIPSIS
+Command not entered. Looking for a...
+>>> fv.fc_file_not_found("C:\\", "a", "") # doctest: +ELLIPSIS
+File not found!...
+>>> fv.fc_file_not_found("C:\\", "r", "") # doctest: +ELLIPSIS
+File not found!...
+>>> fv.fc_syntax_error("load") # doctest: +ELLIPSIS
+Syntax Error...
+>>> fv.fc_syntax_error("absload") # doctest: +ELLIPSIS
+File Type Error...
+>>> fv.fc_permission_error() # doctest: +ELLIPSIS
+File permission error!...
+>>> fv.fc_file_not_found("C:\\", "lf", "") # doctest: +ELLIPSIS
+File not found!...
+>>> fv.fc_plantuml_converting()
+Converting file to python syntax..
+>>> fv.fr_plantuml_classes_not_found()
+Classes not found! Exiting..
+>>> fv.fr_file_accepted()
+File Accepted.. Continuing..
+>>> fv.file_written("Graph.txt")
+<BLANKLINE>
+File(s) Successfully Written to Disk: Graph.txt
+>>> fv.fr_plantuml_error()
+File not in PlantUML Syntax! Program Stopping..
+>>> fv.fe_defaults()
+<BLANKLINE>
+No arguments entered.. Continuing with defaults.
+>>> fv.fe_too_many_args()
+<BLANKLINE>
+Too many arguments entered. Please enter at most 2.
+>>> fv.fe_command_syntax("load") # doctest: +ELLIPSIS
+load requires a filename to load with...
+>>> fv.fe_loadcode_syntax("loadcode") # doctest: +ELLIPSIS
+loadcode requires the ID to know which code...
+>>> fv.fe_abs_syntax() # doctest: +ELLIPSIS
+absload requires a file to load...
+>>> fv.fe_abs_path_error()
+Path must be an absolute path.
+>>> fv.output("Hello World")
+Hello World
+>>> fv.output("Code")
+Code
+>>> fv.output("Data")
+Data
+>>> fv.next_command()
+---------------------------------------------------------------
+Awaiting next command.. Type 'help' for all available commands.
+To quit the program.. Type 'exit' or 'quit'.
+>>> fv.no_filename_entered("C:\\", "load")
+No filename entered.
+Expected Syntax: load {filename.txt}
+>>> fv.no_filename_entered("C:\\", "absload")
+No filename entered.
+Expected Syntax: absload {path_to_file\filename.txt}
+
+"""

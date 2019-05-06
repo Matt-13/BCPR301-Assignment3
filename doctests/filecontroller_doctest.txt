@@ -1,0 +1,67 @@
+"""
+
+>>> from pythonscripts.FileController import FileController
+>>> fc = FileController() # doctest: +ELLIPSIS
+>>> fc.handle_command("load", "")
+<BLANKLINE>
+==========ERROR==========
+<BLANKLINE>
+No filename entered.
+Expected Syntax: load {filename.txt}
+>>> fc.handle_command("load", " ") # doctest: +ELLIPSIS
+<BLANKLINE>
+==========ERROR==========
+<BLANKLINE>
+...
+>>> fc.handle_command("absload", ".\\Graph.txt") # doctest: +ELLIPSIS
+<BLANKLINE>
+File Found! Reading..
+<BLANKLINE>
+...
+>>> fc.handle_command("absload", "")
+<BLANKLINE>
+==========ERROR==========
+<BLANKLINE>
+No filename entered.
+Expected Syntax: absload {path_to_file\filename.txt}
+>>> fc.handle_command("absload", "C:")
+<BLANKLINE>
+==========ERROR==========
+<BLANKLINE>
+File Type Error - File must end in .txt!
+Expected Syntax: absload {path_to_file\filename.txt}
+>>> fc.handle_command("absload", "C:\Graph.txt")
+<BLANKLINE>
+==========ERROR==========
+<BLANKLINE>
+File not found! 'C:\Graph.txt'
+>>> fc.handle_command("load", "graph.txt") # doctest: +ELLIPSIS
+<BLANKLINE>
+File Found! Reading..
+...
+>>> fc.read_file("Graph.txt") # doctest: +ELLIPSIS
+File Accepted.. Continuing..
+Converting file to python syntax..
+...
+>>> fc.read_file("abc.txt")
+System failed to save to file
+>>> fc.save_file("Output.txt", 0)
+
+>>> fc.save_file("Output.txt", "-1")
+
+>>> fc.save_file("Output.txt", 1)
+
+>>> fc.load_code(0)
+Code has loaded successfully
+>>> fc.view_help() # doctest: +ELLIPSIS
+<BLANKLINE>
+<BLANKLINE>
+<BLANKLINE>
+==================== Graph Interpreter Help File ====================
+...
+>>> fc.no_command("") # doctest: +ELLIPSIS
+Command not entered...
+>>> fc.load_command("Abc.txt")
+File Not Found! 'Abc.txt'
+
+"""

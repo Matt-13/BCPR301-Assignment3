@@ -1,0 +1,90 @@
+"""
+
+>>> import sys
+>>> from FileExecuter import SystemArgs
+>>> sys.argv = ["FileExecuter.py", "abc"]
+>>> s = SystemArgs()
+>>> s.check_command() #doctest: +ELLIPSIS
+'' Command not Found,...
+>>> sys.argv = ["FileExecuter.py", "help"]
+>>> s = SystemArgs()
+>>> s.check_if_commands_present() # doctest: +ELLIPSIS
+Command Found.. Parsing..
+<BLANKLINE>
+<BLANKLINE>
+<BLANKLINE>
+====...
+>>> s.check_if_saveargs_present()
+False
+>>> sys.argv = ["FileExecuter.py", "help", "abc", "def", "ghi"]
+>>> s = SystemArgs()
+>>> s.check_if_commands_present()
+<BLANKLINE>
+==========ERROR==========
+<BLANKLINE>
+<BLANKLINE>
+Too many arguments entered. Please enter at most 2.
+>>> s.check_if_commandargs_present() # doctest: +ELLIPSIS
+Too many arguments entered.
+False
+>>> s.do_absload_command() # doctest: +ELLIPSIS
+Too many arguments entered.
+<BLANKLINE>
+===...
+>>> s.do_load_command() # doctest: +ELLIPSIS
+Too many arguments entered.
+<BLANKLINE>
+===...
+>>> s.do_save_command() # doctest: +ELLIPSIS
+<BLANKLINE>
+===...
+>>> sys.argv = ["FileExecuter.py", "save", "File.txt", "1"]
+>>> s = SystemArgs()
+>>> s.check_if_saveargs_present()
+True
+>>> s.do_save_command() # doctest: +ELLIPSIS
+
+>>> sys.argv = ["FileExecuter.py", "save"]
+>>> s = SystemArgs()
+>>> s.do_save_command() # doctest: +ELLIPSIS
+<BLANKLINE>
+===...
+>>> sys.argv = ["FileExecuter.py", "absload", ""]
+>>> s = SystemArgs()
+>>> s.do_absload_command() # doctest: +ELLIPSIS
+<BLANKLINE>
+===...
+>>> sys.argv = ["FileExecuter.py", "absload", "C:\Graph.txt"]
+>>> s = SystemArgs()
+>>> s.do_absload_command() # doctest: +ELLIPSIS
+<BLANKLINE>
+===...
+>>> sys.argv = ["FileExecuter.py", "load", "Graph.txt"]
+>>> s = SystemArgs()
+>>> s.check_if_commandargs_present()
+True
+>>> s.do_load_command() # doctest: +ELLIPSIS
+<BLANKLINE>
+File Found!...
+>>> sys.argv = ["FileExecuter.py", "loadcode"]
+>>> s = SystemArgs()
+>>> s.do_loadcode_command() # doctest: +ELLIPSIS
+Too many arguments entered.
+<BLANKLINE>
+===...
+>>> sys.argv = ["FileExecuter.py", "loadcode", 1]
+>>> s = SystemArgs()
+>>> s.do_loadcode_command() # doctest: +ELLIPSIS
+Code has loaded successfully
+>>> sys.argv = ["FileExecuter.py", "printcode"]
+>>> s = SystemArgs()
+>>> s.do_printcode_command() # doctest: +ELLIPSIS
+Too many arguments entered.
+<BLANKLINE>
+===...
+>>> sys.argv = ["FileExecuter.py", "printcode", 1]
+>>> s = SystemArgs()
+>>> s.do_printcode_command() # doctest: +ELLIPSIS
+# File generated & created on:...
+
+"""

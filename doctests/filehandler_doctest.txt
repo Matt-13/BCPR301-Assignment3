@@ -1,0 +1,25 @@
+"""
+
+>>> from pythonscripts.FileHandler import FileConverter
+>>> from pythonscripts.FileHandler import FileReader
+>>> from pythonscripts.FileHandler import ClassBuilder
+>>> fconv = FileConverter()
+>>> fconv.convert_file()
+Converting file to python syntax..
+>>> fconv.read_file("Graph.txt") # doctest: +ELLIPSIS
+File Accepted.. Continuing..
+>>> file_data = fconv.read_file("Graph.txt") # doctest: +ELLIPSIS
+File Accepted.. Continuing..
+>>> fr = FileReader(fconv.data)
+>>> fr.find_classes() # doctest: +ELLIPSIS
+File Accepted.. Continuing..
+...
+>>> fr.check_if_plantuml(fr.code)
+True
+>>> fr.count_occurrences("Class", fr.code)
+Classes not found! Exiting..
+0
+>>> cb = ClassBuilder("Test", "Test : Str", "Test()", "")
+>>> cb.add_class_relationships()
+
+"""
