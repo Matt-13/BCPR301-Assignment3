@@ -7,6 +7,7 @@
 
 import datetime
 import re
+from pythonscripts.ClassPartsBuilder import ClassBuilder
 from pythonscripts.FileView import FileView
 fv = FileView()
 
@@ -166,7 +167,6 @@ class FileReader:
             print("An Error Occurred" + str(e))
 
 
-# Made by Sarah
 class ClassBuilder:
     def __init__(self, class_name, new_attributes, new_methods, relationships):
         self.name = class_name
