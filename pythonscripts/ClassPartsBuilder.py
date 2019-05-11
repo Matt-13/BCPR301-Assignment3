@@ -6,9 +6,8 @@ class PartDirector(object):
         self.builder = builder
 
     def direct(self, *args):
-        CP = ClassParts()
-        self.builder.set_args(*args)
-        CP.set_attribute(self.builder.__str__())
+        self.builder.set_args(self.builder, *args)
+        return self.builder.__str__(self.builder)
 
 
 class ClassParts:
@@ -23,16 +22,10 @@ class ClassParts:
 
 
 class AbstractPartBuilder(metaclass=ABCMeta):
-    def __init__(self):
+    def __init__(self, *args):
         self.my_name = None
         self.my_return = None
         self.my_type = None
-        self.returns = {
-            "String": f"    {self.my_name}: str",
-            "Integer": f"    {self.my_name}: int",
-            "ArrayObject": f"    {self.my_name}: list",
-            "Object": f"    {self.my_name}: object"
-        }
 
     @abstractmethod
     def set_args(self, *args): pass
@@ -48,6 +41,12 @@ class AttributeBuilder(AbstractPartBuilder):
 
     def __str__(self):
         self.my_name = self.my_name.strip(' ')
+        self.returns = {
+            "String": f"    {self.my_name}: str",
+            "Integer": f"    {self.my_name}: int",
+            "ArrayObject": f"    {self.my_name}: list",
+            "Object": f"    {self.my_name}: object"
+        }
         return self.returns[self.my_return]
 
 
@@ -67,8 +66,3 @@ class RelationshipBuilder(AbstractPartBuilder):
 
     def __str__(self):
         return f"{self.my_name}s"
-
-
-ab = AttributeBuilder()
-mb = MethodBuilder()
-rb = RelationshipBuilder()

@@ -7,7 +7,9 @@
 
 import datetime
 import re
-from pythonscripts.ClassPartsBuilder import ClassBuilder
+# from abc import abstractmethod, ABCMeta
+from pythonscripts.ClassPartsBuilder import PartDirector, \
+    AttributeBuilder, MethodBuilder, RelationshipBuilder
 from pythonscripts.FileView import FileView
 fv = FileView()
 
@@ -184,27 +186,27 @@ class ClassBuilder:
         for an_attribute in self.attributes:
             new_a_name = an_attribute.split(": ")[0]
             new_a_return = an_attribute.split(": ")[1]
-            new_a = Attribute(new_a_name, new_a_return)
+            new_a = PartDirector(AttributeBuilder).direct(new_a_name, new_a_return)
             self.all_my_attributes.append(new_a)
 
     def add_class_methods(self):
         for a_method in self.methods:
             new_m_name = a_method.split(":")[0]
             new_m_return = a_method.split("()")[1]
-            new_m = Method(new_m_name, new_m_return)
+            new_m = PartDirector(MethodBuilder).direct(new_m_name, new_m_return)
             self.all_my_methods.append(new_m)
 
     # Some work on relationships
     def add_class_relationships(self):  # pragma: no cover
         for a_relationship in self.all_my_relationships:
             if "comp" in a_relationship:
-                new_relationship = Relationship(a_relationship)
+                new_relationship = PartDirector(RelationshipBuilder).direct(a_relationship)
                 self.all_my_composite_classes.append(new_relationship)
             if "aggreg" in a_relationship:
-                new_relationship = Relationship(a_relationship)
+                new_relationship = PartDirector(RelationshipBuilder).direct(a_relationship)
                 self.all_my_aggregated_classes.append(new_relationship)
             if "assoc" in a_relationship:
-                new_relationship = Relationship(a_relationship)
+                new_relationship = PartDirector(RelationshipBuilder).direct(a_relationship)
                 self.all_my_associated_classes.append(new_relationship)
 
     # Made by Liam
@@ -247,53 +249,3 @@ class ClassBuilder:
             out += str("{}".format(x))
             out += str("\n\n")
         return out
-
-"""
-Sarah Ball's code - Modified by Liam + Matt
-for compatibility with PEP8
-"""
-
-
-class Attribute:
-    def __init__(self, new_name, new_return):
-        self.name = new_name
-        self._return = new_return
-        self.name = self.name.strip(' ')
-        self.returns = {
-            "String": f"    {self.name}: str",
-            "Integer": f"    {self.name}: int",
-            "ArrayObject": f"    {self.name}: list",
-            "Object": f"    {self.name}: object"
-        }
-
-    def __str__(self):
-        return self.returns[self._return]
-
-
-"""
-Sarah Ball's code - Modified by Liam + Matt
-for compatibility with PEP8
-"""
-
-
-class Method:
-    def __init__(self, new_name, new_return):
-        self.name = new_name.replace("()", "")
-        self._return = new_return
-
-    def __str__(self):
-        return f"    def {self.name}(self):\n        pass"
-
-
-"""
-Matt's Relationship code
-"""
-
-
-class Relationship:  # pragma: no cover
-    def __init__(self, new_type):
-        self.name = new_type[1]
-        self.type = new_type[0]
-
-    def __str__(self):
-        return f"{self.name}s"
