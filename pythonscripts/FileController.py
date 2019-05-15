@@ -13,8 +13,49 @@ fv = FileView()
 db = DataBase()
 
 
-class FileController:
+# Some work on observers.
+class Observer:
+    observers = []
+
     def __init__(self):
+        self.observers.append(self)
+        self.observables = {}
+
+    def observe(self, event_name, callback):
+        self.observables[event_name] = callback
+
+
+# Event for fail converting file
+class EventFailConvert:
+    def __init__(self, name, data, auto_fire=True):
+        self.name = name
+        self.data = data
+        if auto_fire:
+            self.fire()
+
+    def fire(self):
+        for observer in Observer.observers:
+            if self.name in observer.observables:
+                observer.observables[self.name](self.data)
+
+
+# Event for finish converting file
+class EventFinishConvert:
+    def __init__(self, name, data, auto_fire=True):
+        self.name = name
+        self.data = data
+        if auto_fire:
+            self.fire()
+
+    def fire(self):
+        for observer in Observer.observers:
+            if self.name in observer.observables:
+                observer.observables[self.name](self.data)
+
+
+class FileController(Observer):
+    def __init__(self):
+        Observer.__init__(self)
         self.data = 'empty'
         self.loop_running = False
         self.get_commands = {

@@ -10,7 +10,7 @@ import re
 # from abc import abstractmethod, ABCMeta
 from pythonscripts.ClassPartsBuilder import PartDirector, \
     AttributeBuilder, MethodBuilder, RelationshipBuilder, \
-    ClassParts
+    ClassPart
 from pythonscripts.FileView import FileView
 fv = FileView()
 
