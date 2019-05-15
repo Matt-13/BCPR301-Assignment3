@@ -9,7 +9,8 @@ import datetime
 import re
 # from abc import abstractmethod, ABCMeta
 from pythonscripts.ClassPartsBuilder import PartDirector, \
-    AttributeBuilder, MethodBuilder, RelationshipBuilder
+    AttributeBuilder, MethodBuilder, RelationshipBuilder, \
+    ClassParts
 from pythonscripts.FileView import FileView
 fv = FileView()
 

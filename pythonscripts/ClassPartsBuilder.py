@@ -5,24 +5,29 @@ class PartDirector(object):
     def __init__(self, builder):
         self.builder = builder
 
+    def set_builder(self, builder):
+        self.builder = builder
+
     def direct(self, *args):
+        cp = ClassParts()
         self.builder.set_args(self.builder, *args)
-        return self.builder.__str__(self.builder)
+        cp.set_parts(self.builder.__str__(self.builder))
+        return cp.get_parts()
 
 
 class ClassParts:
     def __init__(self):
-        self.all_my_parts = []
+        self.all_my_parts = list()
 
-    def set_attribute(self, parts):
-        self.all_my_parts.append(parts)
+    def set_parts(self, parts):
+        self.all_my_parts = parts
 
-    def return_self(self):
+    def get_parts(self):
         return self.all_my_parts
 
 
 class AbstractPartBuilder(metaclass=ABCMeta):
-    def __init__(self, *args):
+    def __init__(self):
         self.my_name = None
         self.my_return = None
         self.my_type = None
