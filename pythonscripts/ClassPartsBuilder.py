@@ -1,6 +1,7 @@
 from abc import ABCMeta, abstractmethod
 
 
+# Director
 class PartDirector(object):
     def __init__(self, builder):
         self.builder = builder
@@ -9,13 +10,14 @@ class PartDirector(object):
         self.builder = builder
 
     def direct(self, *args):
-        cp = ClassParts()
+        cp = ClassPart()
         self.builder.set_args(self.builder, *args)
         cp.set_parts(self.builder.__str__(self.builder))
         return cp.get_parts()
 
 
-class ClassParts:
+# Product
+class ClassPart:
     def __init__(self):
         self.all_my_parts = list()
 
@@ -26,6 +28,7 @@ class ClassParts:
         return self.all_my_parts
 
 
+# Abstract Builder
 class AbstractPartBuilder(metaclass=ABCMeta):
     def __init__(self):
         self.my_name = None
@@ -39,6 +42,7 @@ class AbstractPartBuilder(metaclass=ABCMeta):
     def __str__(self): pass
 
 
+# Builder: Attributes
 class AttributeBuilder(AbstractPartBuilder):
     def set_args(self, new_name, new_return):
         self.my_name = new_name
@@ -55,6 +59,7 @@ class AttributeBuilder(AbstractPartBuilder):
         return self.returns[self.my_return]
 
 
+# Builder: Methods
 class MethodBuilder(AbstractPartBuilder):
     def set_args(self, new_name, new_return):
         self.my_name = new_name.replace("()", "")
@@ -64,6 +69,7 @@ class MethodBuilder(AbstractPartBuilder):
         return f"    def {self.my_name}(self):\n        pass"
 
 
+# Builder: Relationships
 class RelationshipBuilder(AbstractPartBuilder):
     def set_args(self, new_type):
         self.my_name = new_type[1]
