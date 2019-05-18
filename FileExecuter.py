@@ -4,7 +4,7 @@ import os
 import cmd
 import coverage
 import doctest
-from pythonscripts.FileController import FileController, EventFinishConvert, EventFailConvert
+from pythonscripts.FileController import FileController
 from pythonscripts.FileView import FileView
 
 # Execute code here
@@ -69,7 +69,6 @@ class Main(cmd.Cmd):
         """
         fc.handle_command("load", line)
         fc.observe("File Loaded Successfully", fc.read_file)
-        EventFinishConvert("Finish Convert", "")
         fv.next_command()
 
     # Absload method - Matt
@@ -82,7 +81,6 @@ class Main(cmd.Cmd):
         if "\\" in line:
             fc.handle_command("absload", line)
             fc.observe("File Loaded Successfully", fc.read_file)
-            EventFinishConvert("Finish Convert", "")
         else:
             fv.general_error()
             fv.fe_abs_path_error()
@@ -216,7 +214,6 @@ class SystemArgs:
             if "\\" in str(sys.argv[2]):
                 fc.handle_command("absload", str(sys.argv[2]))
                 fc.observe("File Loaded Successfully", fc.read_file)
-                EventFinishConvert("Finish Convert", "")
             else:
                 fv.general_error()
                 fv.fe_abs_path_error()
@@ -231,7 +228,6 @@ class SystemArgs:
             # User_choose has been disabled for tests to run.
             fc.handle_command("load", str(sys.argv[2]))
             fc.observe("File Loaded Successfully", fc.read_file)
-            EventFinishConvert("Finish Convert", "")
         else:
             fv.general_error()
             fv.fe_command_syntax("Load")

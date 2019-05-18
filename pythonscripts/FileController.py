@@ -5,6 +5,7 @@ from pythonscripts.FileHandler import FileConverter
 from pythonscripts.FileView import FileView
 from pythonscripts.FileWriter import FileWriter
 import os
+import abc
 from pythonscripts.DataBase import DataBase
 
 fconv = FileConverter()
@@ -14,48 +15,41 @@ db = DataBase()
 
 
 # Some work on observers.
-class Observer:
-    observers = []
-
+class Observer(metaclass=abc.ABCMeta):
     def __init__(self):
-        self.observers.append(self)
-        self.observables = {}
+        self._subject = None
+        self._state = None
 
-    def observe(self, event_name, callback):
-        self.observables[event_name] = callback
-
-
-# Event for fail converting file
-class EventFailConvert:
-    def __init__(self, name, data, auto_fire=True):
-        self.name = name
-        self.data = data
-        if auto_fire:
-            self.fire()
-
-    def fire(self):
-        for observer in Observer.observers:
-            if self.name in observer.observables:
-                observer.observables[self.name](self.data)
+    @abc.abstractmethod
+    def update(self, arg):
+        pass
 
 
-# Event for finish converting file
-class EventFinishConvert:
-    def __init__(self, name, data, auto_fire=True):
-        self.name = name
-        self.data = data
-        if auto_fire:
-            self.fire()
-
-    def fire(self):
-        for observer in Observer.observers:
-            if self.name in observer.observables:
-                observer.observables[self.name](self.data)
+# Read Event handler
+class ObserverEvent(Observer):
+    def update(self, arg):
+        self._state = arg
+        fconv.convert_file()
+        fconv.return_program()
+        print(self._state)
 
 
-class FileController(Observer):
+# Line Printer
+class ObserverPrinter(Observer):
+    def update(self, arg):
+        self._state = arg
+        print("--------------------------------"
+              "-------------------------------")
+
+
+OE = ObserverEvent()
+OP = ObserverPrinter()
+
+
+class FileController:
     def __init__(self):
-        Observer.__init__(self)
+        self._observers = set()
+        self._state = None
         self.data = 'empty'
         self.loop_running = False
         self.get_commands = {
@@ -63,7 +57,24 @@ class FileController(Observer):
             "load": self.load_command,
             "absload": self.absload_command
         }
+        self.attach(OP)
+        self.attach(OE)
 
+    # Observer Implementation
+    def attach(self, observer):
+        observer._subject = self
+        self._observers.add(observer)
+
+    def _notify(self):
+        print("Checking for Errors...")
+        for observer in self._observers:
+            observer.update(self._state)
+
+    @property
+    def subject_state(self):
+        return self._state
+
+    # Old Code
     def user_choose(self):   # pragma: no cover
         self.loop_running = True  # doctest: +SKIP
         while self.loop_running:
@@ -155,14 +166,16 @@ class FileController(Observer):
     def read_file(self, filename):
         try:
             fconv.read_file(filename)
-            fconv.convert_file()
-            fconv.return_program()
+            self._state = "Done!"
+            self._notify()
             self.write_file()
         except IOError:  # pragma: no cover
-            print("System failed to save to file")
+            self._state = "Error: System Failed to Save to File!"
+            self._notify()
         except Exception as e:  # pragma: no cover
+            self._state = "An error has occurred" + str(e)
+            self._notify()
             fv.general_error()
-            print("An error has occurred" + str(e))
 
     def write_file(self):
         self.data = fconv.codeToText
