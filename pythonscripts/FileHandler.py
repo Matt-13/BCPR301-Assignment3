@@ -170,6 +170,7 @@ class FileReader:
             print("An Error Occurred" + str(e))
 
 
+# Client
 class ClassBuilder:
     def __init__(self, class_name, new_attributes, new_methods, relationships):
         self.name = class_name
@@ -182,33 +183,30 @@ class ClassBuilder:
         self.all_my_associated_classes = []
         self.all_my_aggregated_classes = []
         self.all_my_composite_classes = []
+        self.PD = PartDirector(None)
 
+    # Client
     def add_class_attributes(self):
-        for an_attribute in self.attributes:
-            new_a_name = an_attribute.split(": ")[0]
-            new_a_return = an_attribute.split(": ")[1]
-            new_a = PartDirector(AttributeBuilder).direct(new_a_name, new_a_return)
-            self.all_my_attributes.append(new_a)
+        self.PD.set_builder(AttributeBuilder)
+        self.all_my_attributes = self.PD.direct(self.attributes)
 
+    # Client
     def add_class_methods(self):
-        for a_method in self.methods:
-            new_m_name = a_method.split(":")[0]
-            new_m_return = a_method.split("()")[1]
-            new_m = PartDirector(MethodBuilder).direct(new_m_name, new_m_return)
-            self.all_my_methods.append(new_m)
+        self.PD.set_builder(MethodBuilder)
+        self.all_my_methods = self.PD.direct(self.methods)
 
-    # Some work on relationships
+    # Client
     def add_class_relationships(self):  # pragma: no cover
+        self.PD.set_builder(RelationshipBuilder)
+        relationships = []
         for a_relationship in self.all_my_relationships:
             if "comp" in a_relationship:
-                new_relationship = PartDirector(RelationshipBuilder).direct(a_relationship)
-                self.all_my_composite_classes.append(new_relationship)
+                relationships.append(a_relationship)
             if "aggreg" in a_relationship:
-                new_relationship = PartDirector(RelationshipBuilder).direct(a_relationship)
-                self.all_my_aggregated_classes.append(new_relationship)
+                relationships.append(a_relationship)
             if "assoc" in a_relationship:
-                new_relationship = PartDirector(RelationshipBuilder).direct(a_relationship)
-                self.all_my_associated_classes.append(new_relationship)
+                relationships.append(a_relationship)
+        self.all_my_relationships = self.PD.direct(relationships)
 
     # Made by Liam
     def return_class(self):
