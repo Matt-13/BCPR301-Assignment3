@@ -22,6 +22,9 @@ class FileView:
 
     # File Controller Methods
     # Made by Liam and Matt
+    def print_minus(self):
+        print(self.minus)
+
     def print_help(self):
         # Matt's Code
         print("\n\n")

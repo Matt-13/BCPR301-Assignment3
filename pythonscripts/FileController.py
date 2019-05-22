@@ -5,7 +5,7 @@ from pythonscripts.FileHandler import FileConverter
 from pythonscripts.FileView import FileView
 from pythonscripts.FileWriter import FileWriter
 import os
-import abc
+from abc import abstractmethod, ABCMeta
 from pythonscripts.DataBase import DataBase
 
 fconv = FileConverter()
@@ -15,41 +15,53 @@ db = DataBase()
 
 
 # Some work on observers.
-class Observer(metaclass=abc.ABCMeta):
+class Observer(metaclass=ABCMeta):
     def __init__(self):
         self._subject = None
         self._state = None
 
-    @abc.abstractmethod
+    @abstractmethod
     def update(self, arg):
         pass
 
 
 # Read Event handler
-class ObserverEvent(Observer):
+class ObserverRead(Observer):
     def update(self, arg):
         self._state = arg
-        fconv.convert_file()
-        fconv.return_program()
-        print(self._state)
+        if self._state == 1:
+            self._state = arg
+            print("Checking for Errors...")
+            print("Done!")
 
 
-# Line Printer
-class ObserverPrinter(Observer):
+# Write File Wrapper Observer
+class ObserverWrite(Observer):
     def update(self, arg):
         self._state = arg
-        print("--------------------------------"
-              "-------------------------------")
+        if self._state == 1:
+            fv.print_minus()
 
 
-OE = ObserverEvent()
-OP = ObserverPrinter()
+# Observes Errors.
+class ObserverCheck(Observer):
+    def update(self, arg):
+        self._state = arg
+        if self._state != 1:
+            fv.general_error()
+            fv.output(self._state)
+
+
+OR = ObserverRead()
+OW = ObserverWrite()
+OC = ObserverCheck()
 
 
 class FileController:
+    _state = 0
+    _observers = set()
+
     def __init__(self):
-        self._observers = set()
-        self._state = None
         self.data = 'empty'
         self.loop_running = False
         self.get_commands = {
@@ -57,16 +69,17 @@ class FileController:
             "load": self.load_command,
             "absload": self.absload_command
         }
-        self.attach(OP)
-        self.attach(OE)
+        self.attach(OW)
+        self.attach(OR)
+        self.attach(OC)
 
     # Observer Implementation
     def attach(self, observer):
         observer._subject = self
         self._observers.add(observer)
+        print("Attached an observer: " + observer.__class__.__name__)
 
     def _notify(self):
-        print("Checking for Errors...")
         for observer in self._observers:
             observer.update(self._state)
 
@@ -164,23 +177,31 @@ class FileController:
             fv.fc_syntax_error("absload")
 
     def read_file(self, filename):
+        self._state = None
         try:
             fconv.read_file(filename)
-            self._state = "Done!"
+            self._state = 1
+            fconv.convert_file()
+            fconv.return_program()
+            # Notify the observers that the program has finished
+            # reading and converting the file.
             self._notify()
             self.write_file()
         except IOError:  # pragma: no cover
             self._state = "Error: System Failed to Save to File!"
             self._notify()
-        except Exception as e:  # pragma: no cover
-            self._state = "An error has occurred" + str(e)
-            self._notify()
-            fv.general_error()
 
     def write_file(self):
+        fv.print_minus()
+        print("Writing File...")
         self.data = fconv.codeToText
-        db.data_entry(self.data)
         fw.write_file(self.data, "Output.txt")
+        print("Done!")
+        fv.print_minus()
+        self.code_to_db()
+
+    def code_to_db(self):
+        db.data_entry(self.data)
 
     # Liam
     def save_file(self, file_name, code_id):
@@ -188,10 +209,8 @@ class FileController:
         try:
             fw.write_file(db.get_code(code_id), file_name)
         except IOError as e:  # pragma: no cover
-            print("System failed to save to file" + e)
-        except Exception as e:  # pragma: no cover
-            fv.general_error()
-            print("An error has occurred" + str(e))
+            self._state = "System failed to save to file" + e
+            self._notify()
 
     # Liam
     def load_code(self, code_id):
@@ -201,12 +220,11 @@ class FileController:
                 self.data = code
                 fv.output("Code has loaded successfully")
             else:
-                fv.output("ERROR: code failed to load:" + '\t' + code)  # pragma: no cover
+                self._state = "ERROR: code failed to load:" + '\t' + code
+                self._notify()
         except IOError:  # pragma: no cover
-            print("System failed to save to file")
-        except Exception as e:  # pragma: no cover
-            fv.general_error()
-            print("An error has occurred" + str(e))
+            self._state = "System failed to save to file"
+            self._notify()
 
     # Liam
     def print_code(self, code_id):  # pragma: no cover
@@ -215,12 +233,15 @@ class FileController:
             if code != '':
                 fv.output(code)
             else:
-                fv.output("ERROR: code failed to load:")
-                fv.output('\t' + code)
+                self._state = "ERROR: code failed to load:" \
+                              "\t" + code
+                self._notify()
         except ValueError and TypeError:  # pragma: no cover
-            fv.output("Please enter an integer")
+            self._state = "Please enter an integer"
+            self._notify()
         except IOError as e:  # pragma: no cover
-            print("System failed to load to file" + e)
+            self._state = "System failed to load to file" + e
+            self._notify()
 
     # Matthew - Possible Middle Man Smell..
     @staticmethod

@@ -50,7 +50,7 @@ class DataBase:
 
         out += "Successfully Submitted to database: \n" + \
                "\tID = {}\n".format(identification - 1) + \
-               "\tTimeStamp = {}\n".format(str(time_stamp))
+               "\tTimeStamp = {}".format(str(time_stamp))
         print(out)
         self.conn.commit()
 
