@@ -257,7 +257,8 @@ class SystemArgs:
     @staticmethod
     def test():
         import doctest
-        doctest.testfile("./doctests/fileexecuter_sysargs_doctest.txt", verbose=1)
+        doctest.testfile("./doctests/fileexecuter_sysargs_doctest.txt",
+                         verbose=1)
 
 
 if __name__ == "__main__":  # pragma: no cover
