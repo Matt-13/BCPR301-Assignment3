@@ -52,16 +52,36 @@ class ObserverCheck(Observer):
             fv.output(self._state)
 
 
+class ConcreteSubject(metaclass=ABCMeta):
+    def __init__(self):
+        _state = 0
+        self._observers = set()
+
+    @abstractmethod
+    def attach(self, observer):
+        pass
+
+    @abstractmethod
+    def detach(self, observer):
+        pass
+
+    @abstractmethod
+    def _notify(self):
+        pass
+
+    @abstractmethod
+    def subject_state(self):
+        pass
+
+
 OR = ObserverRead()
 OW = ObserverWrite()
 OC = ObserverCheck()
 
 
-class FileController:
-    _state = 0
-    _observers = set()
-
+class FileController(ConcreteSubject):
     def __init__(self):
+        ConcreteSubject.__init__(self)
         self.data = 'empty'
         self.loop_running = False
         self.get_commands = {
@@ -78,6 +98,10 @@ class FileController:
         observer._subject = self
         self._observers.add(observer)
         print("Attached an observer: " + observer.__class__.__name__)
+
+    def detach(self, observer):
+        self._observers.remove(observer)
+        print("Detached an observer: " + observer.__class__.__name__)
 
     def _notify(self):
         for observer in self._observers:
