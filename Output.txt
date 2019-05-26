@@ -1,5 +1,5 @@
 # Code Passes PEP8 Checks.
-# File Generated on: 2019-05-26 15:50:44.555600
+# File Generated on: 2019-05-26 15:57:04.596681
 
 class FileController:
 
@@ -108,7 +108,6 @@ class ClassBuilder:
 
 class Attribute:
 
-
     def __init__(self):
 
         pass
@@ -118,7 +117,6 @@ class Attribute:
 
 
 class Method:
-
 
     def __init__(self):
 
@@ -202,7 +200,6 @@ class FileView:
 
 class FileWriter:
 
-
     def __init__(self):
 
         pass
@@ -216,15 +213,6 @@ class FileExecuter:
     command: str
 
     def __init__(self):
-        self.filecontroller = FileController()  # composition of
-        self.filecontroller = FileController()  # composition of
-        self.fileconverter = FileConverter()  # composition of
-        self.filereader = FileReader()  # aggregation of
-        self.filecontroller = FileController()  # aggregation of
-        self.fileexecuter = FileExecuter()  # association of
-        self.fileconverter = FileConverter()  # composition of
-        self.classbuilder = ClassBuilder()  # composition of
-        self.classbuilder = ClassBuilder()  # composition of
 
         pass
 

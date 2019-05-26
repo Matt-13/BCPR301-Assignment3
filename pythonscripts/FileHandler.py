@@ -1,39 +1,9 @@
 # Code passes the PEP8 Check. 26/05/19
 
-import datetime
 import re
 from pythonscripts.FileView import FileView
-from abc import abstractmethod, ABCMeta
+from pythonscripts.NewBuilder import AbstractClassBuilder, Director
 fv = FileView()
-
-
-# Builder Implementation
-class Director(object):
-    def __init__(self, builder):
-        self.builder = builder
-
-    # Returns code created in Class class.
-    def get_code(self):
-        self.builder.add_classes()
-        return self.builder.get_code()
-
-
-class AbstractClassBuilder(metaclass=ABCMeta):
-    def __init__(self, created_classes):
-        self.created_classes = created_classes
-        self.all_my_converted_classes = []
-        self.all_my_classes = []
-
-    def get_code(self):
-        out = '# Code Passes PEP8 Checks.\n'
-        out += '# File Generated on: ' \
-            f'{datetime.datetime.now()}\n'
-        for a_class in self.all_my_classes:
-            out += a_class.return_class()
-        return out
-
-    @abstractmethod
-    def add_classes(self): pass
 
 
 class CodeBuilder(AbstractClassBuilder):
@@ -135,15 +105,6 @@ class FileReader:
         except IOError:
             fv.general_error()
             print("The file cannot be read.")
-        except EOFError:
-            fv.general_error()
-            print("Unexpected End of File.")
-        except TypeError:
-            fv.general_error()
-            print("The file must contain a string.")
-        except Exception as e:
-            fv.general_error()
-            print("An Error Occurred" + str(e))
         return is_plant_uml
 
     @staticmethod
@@ -155,9 +116,6 @@ class FileReader:
             if count == 0:
                 fv.fr_plantuml_classes_not_found()
             return count
-        except TypeError:
-            fv.general_error()
-            print("The file must contain a string.")
         except Exception as e:
             fv.general_error()
             print("An Error Occurred" + str(e))
@@ -173,9 +131,6 @@ class FileReader:
                 return self.allMyClasses
             else:
                 fv.fr_plantuml_error()
-        except TypeError:
-            fv.general_error()
-            print("The file must contain a string.")
         except Exception as e:
             fv.general_error()
             print("An Error Occurred" + str(e))
@@ -223,18 +178,43 @@ class CreatedClass:
 
     # Made by Liam
     def return_class(self):
-        out = str("\nclass {}:\n\n").format(self.name)
+        out = "" + str("\nclass {}:\n\n").format(self.name)
+        out += self.return_class_attributes()
+        out += self.return_class_relationships()
+        out += self.return_class_methods()
+        return out
 
+    def return_class_attributes(self):
+        out = ""
+        length = len(self.all_my_attributes)
+        count = 0
         for x in self.all_my_attributes:
-            out += str("{}".format(x) + "\n")
+            if count == length - 1:
+                out += str("{}".format(x)) + str("\n\n")
+                count += 1
+            elif count < length:
+                out += str("{}".format(x)) + str("\n")
+                count += 1
+        return out
 
-        out += str("\n    " + "def __init__(self):\n")
+    def return_class_relationships(self):
+        out = ""
+        out += str("    " + "def __init__(self):\n")
         for a_class in self.relationships:
-            out += str("        " f"self.{str(a_class[1]).lower()}" f" = {a_class[1]}()  " f"# {a_class[0]}\n")
-        out += str("\n        " + "pass\n\n")
+            out += str(
+                "        "
+                f"self.{str(a_class[1]).lower()}"
+                f" = {a_class[1]}()  "
+                f"# {a_class[0]}\n"
+            )
+        out += "\n" + str("        " + "pass\n\n")
+        return out
 
+    def return_class_methods(self):
+        out = ""
         for x in self.all_my_methods:
-            out += str("{}".format(x) + "\n\n")
+            out += str("{}".format(x))
+            out += str("\n\n")
         return out
 
 
