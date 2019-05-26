@@ -179,10 +179,8 @@ class FileController:
     def read_file(self, filename):
         self._state = None
         try:
-            fconv.read_file(filename)
+            self.data = fconv.read_file(filename)
             self._state = 1
-            fconv.convert_file()
-            fconv.return_program()
             # Notify the observers that the program has finished
             # reading and converting the file.
             self._notify()
@@ -194,7 +192,6 @@ class FileController:
     def write_file(self):
         fv.print_minus()
         print("Writing File...")
-        self.data = fconv.codeToText
         fw.write_file(self.data, "Output.txt")
         print("Done!")
         fv.print_minus()

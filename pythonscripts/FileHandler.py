@@ -1,72 +1,109 @@
-""" Made by 3 students:
-    Matthew Whitaker
-    Liam Brydon
-    Sarah Ball (providing the model)
-"""
-# Code passes the PEP8 Check. 4/04/19
+# Code passes the PEP8 Check. 26/05/19
 
 import datetime
 import re
-# from abc import abstractmethod, ABCMeta
-from pythonscripts.ClassPartsBuilder import PartDirector, \
-    AttributeBuilder, MethodBuilder, RelationshipBuilder, \
-    ClassPart
 from pythonscripts.FileView import FileView
+from abc import abstractmethod, ABCMeta
 fv = FileView()
+
+
+# Builder Implementation
+class Director(object):
+    def __init__(self, builder):
+        self.builder = builder
+
+    # Returns code created in Class class.
+    def get_code(self):
+        self.builder.add_classes()
+        return self.builder.get_code()
+
+
+class AbstractClassBuilder(metaclass=ABCMeta):
+    def __init__(self, created_classes):
+        self.created_classes = created_classes
+        self.all_my_converted_classes = []
+        self.all_my_classes = []
+
+    def get_code(self):
+        out = '# Code Passes PEP8 Checks.\n'
+        out += '# File Generated on: ' \
+            f'{datetime.datetime.now()}\n'
+        for a_class in self.all_my_classes:
+            out += a_class.return_class()
+        return out
+
+    @abstractmethod
+    def add_classes(self): pass
+
+
+class CodeBuilder(AbstractClassBuilder):
+    def add_classes(self):
+        fv.fc_plantuml_converting()
+
+        for a_class in self.created_classes:
+            new_c_class = Translator(a_class)
+            new_c_class.make_class()
+
+            new_class = CreatedClass(new_c_class.class_name,
+                                     new_c_class.attributes,
+                                     new_c_class.methods,
+                                     new_c_class.relationships)
+
+            new_class.add_class_attributes()
+            new_class.add_class_methods()
+            self.all_my_classes.append(new_class)
 
 
 class FileConverter:
     def __init__(self):
-        self.class_info = ""
-        self.classes = []
-        self.data = ""
-        self.converted_classes = []
-        self.my_relationship_content = ""
-        self.codeToText = ""
-        self.class_name = ""
+        self.code = ''
+        self.uml_classes = []
+
+    def read_file(self, filename):
+        with open(filename, "r") as filename:
+            data = filename.read()
+
+        read_uml = FileReader(data)
+        my_data = read_uml.find_classes()
+
+        self.code = Director(CodeBuilder(my_data)).get_code()
+        return self.code
+
+    @staticmethod
+    def test():   # pragma: no cover
+        import doctest
+        doctest.testfile("../doctests/filehandler_doctest.txt", verbose=1)
+
+
+fc = FileConverter()
+
+
+class Translator:
+    def __init__(self, new_class):
+        self.new_class = new_class
+        self.class_name = ''
         self.attributes = []
         self.methods = []
         self.relationships = []
 
-    # Made by Sarah - Modified by Matt
-    def convert_file(self):
-        fv.fc_plantuml_converting()
-        for self.class_info in self.classes:
-            self.attributes = []
-            self.methods = []
-            self.relationships = []
-            self.class_name = self.class_info.split(' ')[1]
-            self.convert_attributes()
-            self.convert_methods()
-            self.convert_relationships()
-            self.add_class(self.class_name, self.attributes, self.methods, self.relationships)
-
-    def convert_attributes(self):
-        for line in self.class_info.split("\n"):
+    def make_class(self):
+        self.class_name = self.new_class.split(' ')[1]
+        for line in self.new_class.split("\n"):
             if line.find(":") != -1:
                 self.attributes.append(line)
 
-    def convert_methods(self):
-        for line in self.class_info.split("\n"):
+        for line in self.new_class.split("\n"):
             if line.find("()") != -1:
                 self.methods.append(line)
 
-    def convert_relationships(self):
-        for relationship in self.my_relationship_content.split("\n"):
+        for relationship in self.new_class.split("\n"):
             if self.find_relationship(relationship, self.class_name):
                 self.relationships.append(
                     self.find_relationship(relationship, self.class_name))
 
-    # Made by Sarah
-    def add_class(self, class_name, attributes, methods, relationships):   # pragma: no cover
-        new_class = ClassBuilder(class_name, attributes,
-                                 methods, relationships)
-        new_class.add_class_attributes()
-        new_class.add_class_methods()
-        self.converted_classes.append(new_class)
-
-    # Some work on relationships
-    def find_relationship(self, relationship, class_name):   # pragma: no cover
+    # Somehow this got broken. Need to fix.
+    @staticmethod
+    def find_relationship(relationship, class_name):
         if relationship.startswith(class_name):
             pass
         elif relationship.endswith(class_name):
@@ -82,31 +119,6 @@ class FileConverter:
                 as_class = relationship.split(" ")[0]
                 return tuple(("aggregation of", as_class))
 
-    def return_program(self):   # pragma: no cover
-        out = "# File generated & created on: " + str(datetime.datetime.now())
-        out += "\n# File passes the PEP8 check."
-        out += "\n\n"
-        for x in self.converted_classes:
-            out += (x.return_class())
-        # out += ""
-        self.codeToText += out
-
-    def read_file(self, file):   # pragma: no cover
-        with open(file, "r") as filename:
-            self.data = filename.read()
-        read_uml = FileReader(self.data)
-        self.classes = read_uml.find_classes()
-        self.my_relationship_content = \
-            self.classes[len(self.classes) - 1]
-
-    @staticmethod
-    def test():   # pragma: no cover
-        import doctest
-        doctest.testfile("../doctests/filehandler_doctest.txt", verbose=1)
-
-
-fc = FileConverter()
-
 
 # Made by Liam & Matt
 class FileReader:
@@ -114,12 +126,12 @@ class FileReader:
         self.allMyClasses = []
         self.code = filename
 
-    # Made by Matt
-    def check_if_plantuml(self, code):   # pragma: no cover
-        is_plantuml = False
+    @staticmethod
+    def check_if_plant_uml(code):   # pragma: no cover
+        is_plant_uml = False
         try:
             if code.startswith("@startuml") and code.endswith("@enduml"):
-                is_plantuml = True
+                is_plant_uml = True
         except IOError:
             fv.general_error()
             print("The file cannot be read.")
@@ -132,11 +144,10 @@ class FileReader:
         except Exception as e:
             fv.general_error()
             print("An Error Occurred" + str(e))
-        return is_plantuml
+        return is_plant_uml
 
-    # Made by Liam
-    # Check if the file contains the word "Class"
-    def count_occurrences(self, word, sentence):   # pragma: no cover
+    @staticmethod
+    def count_occurrences(word, sentence):   # pragma: no cover
         try:
             lower = sentence.lower()
             split = lower.split()
@@ -153,8 +164,8 @@ class FileReader:
 
     def find_classes(self):   # pragma: no cover
         try:
-            is_plantuml = self.check_if_plantuml(self.code)
-            if is_plantuml:
+            is_plant_uml = self.check_if_plant_uml(self.code)
+            if is_plant_uml:
                 fv.fr_file_accepted()
                 value = self.count_occurrences("class", self.code)
                 for i in range(0, value):
@@ -170,8 +181,7 @@ class FileReader:
             print("An Error Occurred" + str(e))
 
 
-# Client
-class ClassBuilder:
+class CreatedClass:
     def __init__(self, class_name, new_attributes, new_methods, relationships):
         self.name = class_name
         self.attributes = new_attributes
@@ -183,68 +193,81 @@ class ClassBuilder:
         self.all_my_associated_classes = []
         self.all_my_aggregated_classes = []
         self.all_my_composite_classes = []
-        self.PD = PartDirector(None)
 
-    # Client
     def add_class_attributes(self):
-        self.PD.set_builder(AttributeBuilder)
-        self.all_my_attributes = self.PD.direct(self.attributes)
+        for an_attribute in self.attributes:
+            new_a_name = an_attribute.split(": ")[0]
+            new_a_return = an_attribute.split(": ")[1]
+            new_a = Attribute(new_a_name, new_a_return)
+            self.all_my_attributes.append(new_a)
 
-    # Client
     def add_class_methods(self):
-        self.PD.set_builder(MethodBuilder)
-        self.all_my_methods = self.PD.direct(self.methods)
+        for a_method in self.methods:
+            new_m_name = a_method.split(":")[0]
+            new_m_return = a_method.split("()")[1]
+            new_m = Method(new_m_name, new_m_return)
+            self.all_my_methods.append(new_m)
 
-    # Client
-    def add_class_relationships(self):  # pragma: no cover
-        self.PD.set_builder(RelationshipBuilder)
-        relationships = []
+    # Some work on relationships
+    def add_class_relationships(self):
         for a_relationship in self.all_my_relationships:
             if "comp" in a_relationship:
-                relationships.append(a_relationship)
+                new_relationship = Relationship(a_relationship)
+                self.all_my_composite_classes.append(new_relationship)
             if "aggreg" in a_relationship:
-                relationships.append(a_relationship)
+                new_relationship = Relationship(a_relationship)
+                self.all_my_aggregated_classes.append(new_relationship)
             if "assoc" in a_relationship:
-                relationships.append(a_relationship)
-        self.all_my_relationships = self.PD.direct(relationships)
+                new_relationship = Relationship(a_relationship)
+                self.all_my_associated_classes.append(new_relationship)
 
     # Made by Liam
     def return_class(self):
-        out = "" + str("\nclass {}:\n\n").format(self.name)
-        out += self.return_class_attributes()
-        out += self.return_class_relationships()
-        out += self.return_class_methods()
-        return out
+        out = str("\nclass {}:\n\n").format(self.name)
 
-    def return_class_attributes(self):
-        out = ""
-        length = len(self.all_my_attributes)
-        count = 0
         for x in self.all_my_attributes:
-            if count == length - 1:
-                out += str("{}".format(x)) + str("\n\n")
-                count += 1
-            elif count < length:
-                out += str("{}".format(x)) + str("\n")
-                count += 1
-        return out
+            out += str("{}".format(x) + "\n")
 
-    def return_class_relationships(self):
-        out = ""
-        out += str("    " + "def __init__(self):\n")
+        out += str("\n    " + "def __init__(self):\n")
         for a_class in self.relationships:
-            out += str(
-                "        "
-                f"self.{str(a_class[1]).lower()}"
-                f" = {a_class[1]}()  "
-                f"# {a_class[0]}\n"
-            )
-        out += "\n" + str("        " + "pass\n\n")
+            out += str("        " f"self.{str(a_class[1]).lower()}" f" = {a_class[1]}()  " f"# {a_class[0]}\n")
+        out += str("\n        " + "pass\n\n")
+
+        for x in self.all_my_methods:
+            out += str("{}".format(x) + "\n\n")
         return out
 
-    def return_class_methods(self):
-        out = ""
-        for x in self.all_my_methods:
-            out += str("{}".format(x))
-            out += str("\n\n")
-        return out
+
+class Attribute:
+    def __init__(self, new_name, new_return):
+        self.name = new_name
+        self._return = new_return
+        self.name = self.name.strip(' ')
+
+        self.output = {
+            "String": f"    {self.name}: str",
+            "Integer": f"    {self.name}: int",
+            "ArrayObject": f"    {self.name}: list",
+            "Object": f"    {self.name}: object"
+        }
+
+    def __str__(self):
+        return self.output[self._return]
+
+
+class Method:
+    def __init__(self, new_name, new_return):
+        self.name = new_name.replace("()", "")
+        self._return = new_return
+
+    def __str__(self):
+        return f"    def {self.name}(self):\n        pass"
+
+
+class Relationship:
+    def __init__(self, new_type):
+        self.name = new_type[1]
+        self.type = new_type[0]
+
+    def __str__(self):
+        return f"{self.name}s"
