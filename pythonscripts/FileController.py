@@ -65,7 +65,7 @@ class Subject(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def _notify(self):
+    def notify(self):
         pass
 
 
@@ -99,7 +99,7 @@ class FileController(Subject):
         self._observers.remove(observer)
         print("Detached an observer: " + observer.__class__.__name__)
 
-    def _notify(self):
+    def notify(self):
         for observer in self._observers:
             observer.update()
 
@@ -205,11 +205,11 @@ class FileController(Subject):
             self.set_state(1)
             # Notify the observers that the program has finished
             # reading and converting the file.
-            self._notify()
+            self.notify()
             self.write_file()
         except IOError:  # pragma: no cover
             self.set_state("Error: System Failed to Save to File!")
-            self._notify()
+            self.notify()
 
     def write_file(self):
         fv.print_minus()
@@ -229,7 +229,7 @@ class FileController(Subject):
             fw.write_file(db.get_code(code_id), file_name)
         except IOError as e:  # pragma: no cover
             self.set_state("System failed to save to file" + e)
-            self._notify()
+            self.notify()
 
     # Liam
     def load_code(self, code_id):
@@ -240,10 +240,10 @@ class FileController(Subject):
                 fv.output("Code has loaded successfully")
             else:
                 self.set_state("ERROR: code failed to load:" + '\t' + code)
-                self._notify()
+                self.notify()
         except IOError:  # pragma: no cover
             self.set_state("System failed to save to file")
-            self._notify()
+            self.notify()
 
     # Liam
     def print_code(self, code_id):  # pragma: no cover
@@ -253,13 +253,13 @@ class FileController(Subject):
                 fv.output(code)
             else:
                 self.set_state("ERROR: code failed to load:")
-                self._notify()
+                self.notify()
         except ValueError and TypeError:  # pragma: no cover
             self.set_state("Please enter an integer")
-            self._notify()
+            self.notify()
         except IOError as e:  # pragma: no cover
             self.set_state("System failed to load to file" + e)
-            self._notify()
+            self.notify()
 
     # Matthew - Possible Middle Man Smell..
     @staticmethod
