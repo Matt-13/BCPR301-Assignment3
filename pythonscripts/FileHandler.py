@@ -1,6 +1,7 @@
 # Code passes the PEP8 Check. 26/05/19
 
 import re
+import datetime
 from pythonscripts.FileView import FileView
 from pythonscripts.NewBuilder import AbstractClassBuilder, Director
 fv = FileView()
@@ -22,6 +23,14 @@ class CodeBuilder(AbstractClassBuilder):
             new_class.add_class_attributes()
             new_class.add_class_methods()
             self.all_my_classes.append(new_class)
+
+    def get_code(self):
+        out = '# Code Passes PEP8 Checks.\n'
+        out += '# File Generated on: ' \
+            f'{datetime.datetime.now()}\n'
+        for a_class in self.all_my_classes:
+            out += a_class.return_class()
+        return out
 
 
 class FileConverter:

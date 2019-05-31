@@ -1,4 +1,4 @@
-import datetime
+
 from abc import ABCMeta, abstractmethod
 
 
@@ -7,7 +7,7 @@ class Director(object):
     def __init__(self, builder):
         self.builder = builder
 
-    # Returns code created in Class class.
+    # Returns code created.
     def get_code(self):
         self.builder.add_classes()
         return self.builder.get_code()
@@ -19,13 +19,8 @@ class AbstractClassBuilder(metaclass=ABCMeta):
         self.all_my_converted_classes = []
         self.all_my_classes = []
 
-    def get_code(self):
-        out = '# Code Passes PEP8 Checks.\n'
-        out += '# File Generated on: ' \
-            f'{datetime.datetime.now()}\n'
-        for a_class in self.all_my_classes:
-            out += a_class.return_class()
-        return out
+    @abstractmethod
+    def get_code(self): pass
 
     @abstractmethod
     def add_classes(self): pass
