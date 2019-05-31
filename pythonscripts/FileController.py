@@ -51,7 +51,7 @@ class ObserverCheck(Observer):
             fv.output(self._state)
 
 
-class ConcreteSubject(metaclass=ABCMeta):
+class Subject(metaclass=ABCMeta):
     def __init__(self):
         self._state = 0
         self._observers = set()
@@ -74,9 +74,10 @@ OW = ObserverWrite()
 OC = ObserverCheck()
 
 
-class FileController(ConcreteSubject):
+# Concrete Subject
+class FileController(Subject):
     def __init__(self):
-        ConcreteSubject.__init__(self)
+        Subject.__init__(self)
         self.data = 'empty'
         self.loop_running = False
         self.get_commands = {
