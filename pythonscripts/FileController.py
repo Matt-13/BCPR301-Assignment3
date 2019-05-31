@@ -21,32 +21,31 @@ class Observer(metaclass=ABCMeta):
         self._state = None
 
     @abstractmethod
-    def update(self, arg):
+    def update(self):
         pass
 
 
-# Read Event handler
+# Read Event handler - Concrete Observer
 class ObserverRead(Observer):
-    def update(self, arg):
-        self._state = arg
+    def update(self):
+        self._state = self._subject.get_state()
         if self._state == 1:
-            self._state = arg
             print("Checking for Errors...")
             print("Done!")
 
 
-# Write File Wrapper Observer
+# Write File Wrapper Observer - Concrete Observer
 class ObserverWrite(Observer):
-    def update(self, arg):
-        self._state = arg
+    def update(self):
+        self._state = self._subject.get_state()
         if self._state == 1:
             fv.print_minus()
 
 
-# Observes Errors.
+# Observes Errors. - Concrete Observer
 class ObserverCheck(Observer):
-    def update(self, arg):
-        self._state = arg
+    def update(self):
+        self._state = self._subject.get_state()
         if self._state != 1:
             fv.general_error()
             fv.output(self._state)
@@ -54,7 +53,7 @@ class ObserverCheck(Observer):
 
 class ConcreteSubject(metaclass=ABCMeta):
     def __init__(self):
-        _state = 0
+        self._state = 0
         self._observers = set()
 
     @abstractmethod
@@ -67,10 +66,6 @@ class ConcreteSubject(metaclass=ABCMeta):
 
     @abstractmethod
     def _notify(self):
-        pass
-
-    @abstractmethod
-    def subject_state(self):
         pass
 
 
@@ -105,10 +100,12 @@ class FileController(ConcreteSubject):
 
     def _notify(self):
         for observer in self._observers:
-            observer.update(self._state)
+            observer.update()
 
-    @property
-    def subject_state(self):
+    def set_state(self, state):
+        self._state = state
+
+    def get_state(self):
         return self._state
 
     # Old Code
@@ -201,16 +198,16 @@ class FileController(ConcreteSubject):
             fv.fc_syntax_error("absload")
 
     def read_file(self, filename):
-        self._state = None
+        self.set_state(None)
         try:
             self.data = fconv.read_file(filename)
-            self._state = 1
+            self.set_state(1)
             # Notify the observers that the program has finished
             # reading and converting the file.
             self._notify()
             self.write_file()
         except IOError:  # pragma: no cover
-            self._state = "Error: System Failed to Save to File!"
+            self.set_state("Error: System Failed to Save to File!")
             self._notify()
 
     def write_file(self):
@@ -230,7 +227,7 @@ class FileController(ConcreteSubject):
         try:
             fw.write_file(db.get_code(code_id), file_name)
         except IOError as e:  # pragma: no cover
-            self._state = "System failed to save to file" + e
+            self.set_state("System failed to save to file" + e)
             self._notify()
 
     # Liam
@@ -241,10 +238,10 @@ class FileController(ConcreteSubject):
                 self.data = code
                 fv.output("Code has loaded successfully")
             else:
-                self._state = "ERROR: code failed to load:" + '\t' + code
+                self.set_state("ERROR: code failed to load:" + '\t' + code)
                 self._notify()
         except IOError:  # pragma: no cover
-            self._state = "System failed to save to file"
+            self.set_state("System failed to save to file")
             self._notify()
 
     # Liam
@@ -254,14 +251,13 @@ class FileController(ConcreteSubject):
             if code != '':
                 fv.output(code)
             else:
-                self._state = "ERROR: code failed to load:" \
-                              "\t" + code
+                self.set_state("ERROR: code failed to load:")
                 self._notify()
         except ValueError and TypeError:  # pragma: no cover
-            self._state = "Please enter an integer"
+            self.set_state("Please enter an integer")
             self._notify()
         except IOError as e:  # pragma: no cover
-            self._state = "System failed to load to file" + e
+            self.set_state("System failed to load to file" + e)
             self._notify()
 
     # Matthew - Possible Middle Man Smell..
