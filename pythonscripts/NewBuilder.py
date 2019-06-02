@@ -8,7 +8,7 @@ class Director(object):
         self.builder = builder
 
     # Returns code created.
-    def get_code(self):
+    def construct(self):
         self.builder.add_classes()
         return self.builder.get_code()
 

@@ -45,7 +45,7 @@ class FileConverter:
         read_uml = FileReader(data)
         my_data = read_uml.find_classes()
 
-        self.code = Director(CodeBuilder(my_data)).get_code()
+        self.code = Director(CodeBuilder(my_data)).construct()
         return self.code
 
     @staticmethod
